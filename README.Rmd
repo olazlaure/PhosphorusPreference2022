@@ -19,7 +19,7 @@ Title <- "Analysis Nat Pop 2021"
 ## GENERAL INFORMATION
 
 ####  1. Description
-This research compendium describes how to analyze oviposition preference data from an experiment conducted in D. suzukii in 2018, in South of France (CBGP, Montpellier, France). [here](https://github.com/olazlaure/PhosphorusPreference2022).  
+This research compendium describes how to analyze oviposition preference data from an experiment conducted in D. suzukii in 2018, in South of France (CBGP, Montpellier, France). [here](https://github.com/olazlaure/PhosphorusPreference2022/).  
 
 The analyses of this research compendium are published in JOURNAL NAME in DATE.   
 :writing_hand: Citation - Link to come.   
@@ -45,7 +45,7 @@ For the complete list of authors of the manuscript, see the manuscript.
 :round_pushpin: South of France.   
 
 ####  4. Funding sources that supported the collection of the data
-Data collection was supported by the Languedoc-Roussillon region (France) through the European Union program FEDER FSE IEJ 2014-2020 (project CPADROL), the INRAE scientific department SPE (AAP-SPE 2016), the National Science Foundation (DEB-0949619), the USDA Agriculture and Food Research Initiative award (2014-67013-21594), Hatch project 1012868, the French Agropolis Fondation (LabEx Agro–Montpellier) through the AAP “International Mobility” (CfP 2015-02), the French programme investissement d'avenir, and the LabEx CEMEB through the AAP "invited scientist 2016", the CeMEB LabEx/University of Montpellier (ANR-10-LABX-04-01) and the INRAE scientific department SPE (AAP-SPE 2021PestAdapt).
+We are grateful to Graeme D. Batten and Lindsay C. Campbell for insightful discussions on the chemical composition of fruits. L.O. acknowledges support from the European Union program FEFER FSE IEJ 2014-2020 (project CPADROL) and the INRAE scientific department SPE (AAP-SPE 2016). N.O.R. acknowledges support from the CeMEB LabEx/University of Montpellier (ANR-10-LABX-04-01). 
 
 ####  5. Recommended citation for this dataset:
 :writing_hand: Olazcuaga et al. (XXX), Data from: XXXXX
