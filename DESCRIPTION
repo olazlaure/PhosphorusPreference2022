@@ -1,21 +1,20 @@
-Package: NatPop2021
-Title: Analyze Fecundity, Egg-to-adult Viability And Oviposition Preference Data
-Version: 0.0.0.9000
+Package: PhosphorusPreference2022
+Title: Analysis of D. suzukii oviposition preference for phosphorus concentration
+Version: 0.0.0.001
 Authors@R: 
-    c(person(given = "Nicolas",
-           family = "RODE",
-           role = c("aut", "cre"),
-           email = "nicolas.rode@inrae.fr",
-           comment = c(ORCID = "0000-0002-1121-4202")),
-      person(given = "Laure",
+    c(person(given = "Laure",
            family = "OLAZCUAGA",
-           role = c("aut"),
+           role = c("aut", "cre"),
            email = "olaz.laure@gmail.com",
-           comment = c(ORCID = "0000-0001-9100-1305")))
-Description: This research compendium describes how to analyze fecundity, egg-to-adult viability and oviposition preference data
-    from an experiment conducted in D. suzukii in 2018.
-URL: https://github.com/nrode/NatPop2021
-BugReports: https://github.com/nrode/NatPop2021/issues
+           comment = c(ORCID = "0000-0001-9100-1305")), 
+           person(given = "Nicolas",
+           family = "RODE",
+           role = c("aut"),
+           email = "nicolas.rode@inrae.fr",
+           comment = c(ORCID = "0000-0002-1121-4202")))
+Description: This research compendium describes how to oviposition preference data from an experiment conducted in D. suzukii in 2019.
+URL: https://github.com/olazlaure/PhosphorusPreference2022
+BugReports: https://github.com/olazlaure/PhosphorusPreference2022/issues
 License: MIT + file LICENSE
 ByteCompile: true
 Encoding: UTF-8
