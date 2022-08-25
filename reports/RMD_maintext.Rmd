@@ -31,39 +31,362 @@ head(data_color)
 
 data_color$hex_code <- paste0("#",data_color$hex)
 
-rgba.array <- col2rgb(data_color$hex_code, alpha=TRUE )
+rgba_array <- col2rgb(data_color$hex_code, alpha=TRUE )
 data_color$red <- rgba.array[1,]
 data_color$green <- rgba.array[2,]
 data_color$blue <- rgba.array[3,]
-#data_color$alpha <- rgba.array[4,]
-# 
-# library("colorspace")
-# data_color$luminance <- as(hex2RGB(data_color$hex_code), "polarLUV")[1] #(whether a color is light or dark)
-# data_color$chroma <- as(hex2RGB(data_color$hex_code), "polarLUV")[2] #how colorful the color is compared to a gray with the same 
-# luminance
-# data_color$hue <- 
-# 
-# rgba.array<- cbind(data_color,as(hex2RGB(data_color$hex_code), "polarLUV"))
-# 
-# 
-# test <- as(hex2RGB(data_color$hex_code), "polarLUV")
-# as.data.frame(test)
 
-?hex2RGB()
+hcl_array <- as(colorspace::hex2RGB(data_color$hex_code), "polarLUV")
+S4_to_dataframe <- function(s4obj) {
+  nms <- slotNames(s4obj)
+  lst <- lapply(nms, function(nm) slot(s4obj, nm))
+  as.data.frame(setNames(lst, nms))
+}
+hcl_array_clean <- S4_to_dataframe(hcl_array)
+
+data_color$luminance <- hcl_array_clean[,1] #(whether a color is light or dark)
+data_color$chroma <- hcl_array_clean[,2] #how colorful the color is compared to a gray with the same
+data_color$hue <- hcl_array_clean[,3]
+
+
+rm(hcl_array,rgba_array, hcl_array)
+
+head(data_color)
+
 ```
 
 ## Preference data
 ```{r }
-P  <- read.table(file=here::here("data", "DATA_PHOSPHORUS_test_arenas.csv"), sep=",", header=TRUE)
-Fr  <- read.table(file=here::here("data", "DATA_FRUITS_control_arenas.csv"), sep=",", header=TRUE)
+data_phosphorus  <- read.table(file=here::here("data", "DATA_PHOSPHORUS_test_arenas.csv"), sep=",", header=TRUE)
+data_control  <- read.table(file=here::here("data", "DATA_FRUITS_control_arenas.csv"), sep=",", header=TRUE)
 
 # Verification des donnees
-str(P)
-str(Fr)
+str(data_phosphorus)
+str(data_control)
 
-P$obs <- as.factor(1:nrow(P))
-Fr$obs <- as.factor(1:nrow(Fr))
+data_phosphorus$obs <- as.factor(1:nrow(data_phosphorus))
+data_control$obs <- as.factor(1:nrow(data_control))
 ```
+
+
+
+## Composition fruits
+```{r }
+data_compo  <- read.table(file=here::here("data", "Data_compo_fruits_FromOlazcuaga2019.csv"),
+                               sep=",", header=TRUE)
+
+data_compo$Phosphorus <- data_compo$Phosphorus/1000
+
+data_compo_clean <- data.frame(Fruit = data_compo$Treatment, 
+                         Concentration = data_compo$Phosphorus)
+
+```
+
+
+## Merge dataset
+```{r }
+
+data_control <- merge(data_control, data_compo_clean, 
+      by.x = "Fruit",  by.y = "Fruit", all.x = TRUE, all.y = FALSE)
+
+data_color <- merge(data_color, data_compo_clean, 
+      by.x = "fruit",  by.y = "Fruit", all.x = TRUE, all.y = FALSE)
+
+
+```
+
+
+
+
+# ANALYSIS
+## Phosphore standard vs control
+```{r }
+
+#Phosphorus effect
+lm0 <- lme4::glmer(Nb_eggs ~ Concentration + (1|ArenaID) + (1|Row:Column) + (1|obs), 
+             data = data_phosphorus, family = poisson(link = "log"))
+lm1 <- lme4::glmer(Nb_eggs ~ 1 + (1|ArenaID) + (1|Row:Column) + (1|obs), 
+             data = data_phosphorus, family = poisson(link = "log"))
+anova(lm0,lm1,test="Chisq")
+
+
+#Control treatment
+lm0 <- lme4::glmer(Nb_eggs ~ Concentration + (1|ArenaID) + (1|Row:Column) + (1|obs), 
+             data = data_control, family = poisson(link = "log"))
+lm1 <- lme4::glmer(Nb_eggs ~ 1 + (1|ArenaID) + (1|Row:Column) + (1|obs), 
+             data = data_control, family = poisson(link = "log"))
+anova(lm0,lm1,test="Chisq")
+
+
+
+```
+
+
+# PLOT
+```{r }
+SUM_Phosphore <- Rmisc::summarySE(data_phosphorus, 
+                        measurevar = c("Nb_eggs"),
+                       groupvars = c("Concentration"), 
+                       na.rm=TRUE)
+
+PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Concentration, y = Nb_eggs)) + 
+  geom_point(data = SUM_Phosphore, aes(x = Concentration, y = Nb_eggs), 
+             size = 5, position = position_dodge(0.8)) +
+  geom_errorbar(data = SUM_Phosphore, aes(x = Concentration,
+                                          ymin = Nb_eggs-ci, ymax = Nb_eggs+ci,), 
+             size = 1, width=.05,  position = position_dodge(0.4)) +
+  geom_point(position = position_dodge(width = 0.7), size = 0.8, alpha = 0.6) +
+    xlim(-0.05,1.7) +
+  ylab("Number of eggs") +
+  xlab("Phosphorus concentration") +
+  theme_LO_sober
+PLOT_Phosphorus_average
+
+
+SUM_Control <- Rmisc::summarySE(data_control, 
+                        measurevar = c("Nb_eggs"),
+                       groupvars = c("Concentration",
+                                     "Fruit"), 
+                       na.rm=TRUE)
+
+
+PLOT_Control_average <- ggplot2::ggplot(data_control, 
+                                        aes(x = Concentration, y = Nb_eggs,
+                                            color= Fruit)) + 
+  geom_point(data = SUM_Control, aes(x = Concentration, y = Nb_eggs), 
+             size = 5, position = position_dodge(0.8)) +
+  geom_errorbar(data = SUM_Control, aes(x = Concentration,
+                                          ymin = Nb_eggs-ci, ymax = Nb_eggs+ci,), 
+             size = 1, width=.01,  position = position_dodge(0.2)) +
+  geom_point(position = position_dodge(width = .05), size = 0.8, alpha = 0.6) +
+  scale_color_manual(name="Fruit",
+                     breaks = c("Tomato","Grape","Blackberry","Kiwi", "Raspberry", "Strawberry","Fig", "Rosehips", "Cherry","Blackcurrant", "Cranberry", "Apricot"), 
+                    labels = c("Tomato","Grape","Blackberry","Kiwi", "Raspberry", "Strawberry","Fig", "Rosehips", "Cherry","Blackcurrant", "Cranberry", "Apricot"), 
+                    values = c("#e31a1c","#b2df8a","#1f78b4","#33a02c", "#fdbf6f", "#fb9a99","#6a3d9a", "#b15928", "#cab2d6","#a6cee3", "#e7e700", "#ff7f00")) +
+  xlim(-0.005,0.325) +
+  ylab("Number of eggs") +
+  xlab("Phosphorus concentration") +
+  theme_LO_sober
+PLOT_Control_average
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Plot color
+```{r }
+
+desc1 <- psych::describeBy(data_color$red, data_color$fruit, mat =TRUE, digits =2)
+desc1 <- desc1[order(desc1$group1),]
+desc2 <- psych::describeBy(data_control$Nb_eggs, data_control$Fruit , mat =TRUE, digits =2)
+desc2 <- desc2[order(desc2$group1),]
+
+COL_VECTOR <- c("Apricot" = "#ff7f00",  "Blackberry" = "#1f78b4", "Blackcurrant" = "#a6cee3", "Cherry" = "#cab2d6", "Cranberry" = "#e7e700", "Fig" = "#6a3d9a",  "Grape" = "#b2df8a","Kiwi" = "#33a02c","Raspberry" = "#fdbf6f","Rose hips" = "#b15928",  "Strawberry" = "#fb9a99", 
+           "Tomato" = "#e31a1c")
+
+cor_test <- cor.test(desc1$mean, desc2$mean)
+title <- paste("P-value = ", cor_test$p.value)
+
+cowplot::save_plot(file=here::here("figures", "Red_color.pdf"),
+          psych::error.crosses(desc1, desc2,
+              labels = desc1$group1,
+              xlab = "Color: Red",
+              ylab = "Number of eggs",
+              offset = 2, las = 1,
+              main = title,
+              sd =F, 
+              cex.lab= 1.5,
+              cex.axis = 1.5,
+              arrow.len = 0.01,
+              color = COL_VECTOR,
+              pch = 16,
+              cex = 1.5),
+         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+
+
+
+
+
+
+
+###### Data
+desc1 <- psych::describeBy(data_color$green, data_color$fruit, mat =TRUE, digits =2)
+desc1 <- desc1[order(desc1$group1),]
+cor_test <- cor.test(desc1$mean, desc2$mean)
+title <- paste("P-value = ", cor_test$p.value)
+
+cowplot::save_plot(file=here::here("figures", "Green_color.pdf"),
+          psych::error.crosses(desc1, desc2,
+              labels = desc1$group1,
+              xlab = "Color: Green",
+              ylab = "Number of eggs",
+              offset = 2, las = 1,
+              main = title,
+              sd =F, 
+              cex.lab= 1.5,
+              cex.axis = 1.5,
+              arrow.len = 0.01,
+              color = COL_VECTOR,
+              pch = 16,
+              cex = 1.5),
+         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+
+
+
+
+###### Data
+desc1 <- psych::describeBy(data_color$blue, data_color$fruit, mat =TRUE, digits =2)
+desc1 <- desc1[order(desc1$group1),]
+cor_test <- cor.test(desc1$mean, desc2$mean)
+title <- paste("P-value = ", cor_test$p.value)
+
+cowplot::save_plot(file=here::here("figures", "Blue_color.pdf"),
+          psych::error.crosses(desc1, desc2,
+              labels = desc1$group1,
+              xlab = "Color: Blue",
+              ylab = "Number of eggs",
+              offset = 2, las = 1,
+              main = title,
+              sd =F, 
+              cex.lab= 1.5,
+              cex.axis = 1.5,
+              arrow.len = 0.01,
+              color = COL_VECTOR,
+              pch = 16,
+              cex = 1.5),
+         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+
+
+
+
+
+
+###### Data
+desc1 <- psych::describeBy(data_color$luminance, data_color$fruit, mat =TRUE, digits =2)
+desc1 <- desc1[order(desc1$group1),]
+cor_test <- cor.test(desc1$mean, desc2$mean)
+title <- paste("P-value = ", cor_test$p.value)
+
+cowplot::save_plot(file=here::here("figures", "Luminance_color.pdf"),
+          psych::error.crosses(desc1, desc2,
+              labels = desc1$group1,
+              xlab = "Color: Luminance",
+              ylab = "Number of eggs",
+              offset = 2, las = 1,
+              main = title,
+              sd =F, 
+              cex.lab= 1.5,
+              cex.axis = 1.5,
+              arrow.len = 0.01,
+              color = COL_VECTOR,
+              pch = 16,
+              cex = 1.5),
+         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+
+
+
+
+
+###### Data
+desc1 <- psych::describeBy(data_color$chroma, data_color$fruit, mat =TRUE, digits =2)
+desc1 <- desc1[order(desc1$group1),]
+cor_test <- cor.test(desc1$mean, desc2$mean)
+title <- paste("P-value = ", cor_test$p.value)
+
+cowplot::save_plot(file=here::here("figures", "Chroma_color.pdf"),
+          psych::error.crosses(desc1, desc2,
+              labels = desc1$group1,
+              xlab = "Color: Chroma",
+              ylab = "Number of eggs",
+              offset = 2, las = 1,
+              main = title,
+              sd =F, 
+              cex.lab= 1.5,
+              cex.axis = 1.5,
+              arrow.len = 0.01,
+              color = COL_VECTOR,
+              pch = 16,
+              cex = 1.5),
+         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+
+
+
+###### Data
+desc1 <- psych::describeBy(data_color$hue, data_color$fruit, mat =TRUE, digits =2)
+desc1 <- desc1[order(desc1$group1),]
+cor_test <- cor.test(desc1$mean, desc2$mean)
+title <- paste("P-value = ", cor_test$p.value)
+
+cowplot::save_plot(file=here::here("figures", "Hue_color.pdf"),
+          psych::error.crosses(desc1, desc2,
+              labels = desc1$group1,
+              xlab = "Color: Hue",
+              ylab = "Number of eggs",
+              offset = 2, las = 1,
+              main = title,
+              sd =F, 
+              cex.lab= 1.5,
+              cex.axis = 1.5,
+              arrow.len = 0.01,
+              color = COL_VECTOR,
+              pch = 16,
+              cex = 1.5),
+         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# OLD
 
 # Plots
 

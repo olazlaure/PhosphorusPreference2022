@@ -1,9 +1,9 @@
 ﻿fruit,hex
-Grape ,9A7558
-Grape ,987257
-Grape ,8E6951
-Grape ,BA8A61
-Grape ,9A7558
+Grape,9A7558
+Grape,987257
+Grape,8E6951
+Grape,BA8A61
+Grape,9A7558
 Blackcurrant,331B1E
 Blackcurrant,321A1C
 Blackcurrant,341F20
@@ -19,31 +19,31 @@ Apricot,B68A54
 Apricot,C5995E
 Apricot,AE7C49
 Apricot,C5995E
-Rosehips ,AB744A
-Rosehips ,A77248
-Rosehips ,925D3B
-Rosehips ,AC7449
-Rosehips ,A77145
-Raspberry ,A3525D
-Raspberry ,A5545F
-Raspberry ,9C4E58
-Raspberry ,A3525D
-Raspberry ,9B4C56
+Rosehips,AB744A
+Rosehips,A77248
+Rosehips,925D3B
+Rosehips,AC7449
+Rosehips,A77145
+Raspberry,A3525D
+Raspberry,A5545F
+Raspberry,9C4E58
+Raspberry,A3525D
+Raspberry,9B4C56
 Cherry,6E343A
 Cherry,693038
 Cherry,6D373B
 Cherry,6C363D
 Cherry,71383E
-Cranberry ,914048
-Cranberry ,80353B
-Cranberry ,8A3F42
-Cranberry ,9E4850
-Cranberry ,813638
-Tomato ,C79858
-Tomato ,D2A461
-Tomato ,C18F54
-Tomato ,CA9B5B
-Tomato ,CA985C
+Cranberry,914048
+Cranberry,80353B
+Cranberry,8A3F42
+Cranberry,9E4850
+Cranberry,813638
+Tomato,C79858
+Tomato,D2A461
+Tomato,C18F54
+Tomato,CA9B5B
+Tomato,CA985C
 Strawberry,9D675F
 Strawberry,B97F70
 Strawberry,A56E65
@@ -54,8 +54,8 @@ Kiwi,B19965
 Kiwi,BAA46C
 Kiwi,AB9462
 Kiwi,A18957
-Fig ,7F5C45
-Fig ,94725B
-Fig ,886048
-Fig ,A17A5D
-Fig ,926D53
+Fig,7F5C45
+Fig,94725B
+Fig,886048
+Fig,A17A5D
+Fig,926D53
