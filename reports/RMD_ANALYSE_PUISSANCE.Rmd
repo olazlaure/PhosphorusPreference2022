@@ -1,0 +1,150 @@
+---
+title: "RMD_ANALYSE_PUISSANCE"
+author: "Laure Olaz"
+date: "12/03/2019"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: no
+      smooth_scroll: no
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+# LIBRARIES
+```{r }
+
+library(lme4) #analyses lmer()
+library(ggplot2)
+
+```
+
+
+
+
+# Data 
+## Preference
+```{r }
+dPREF<-read.table("/Users/olazcuag/Documents/These_28022019/Documents/These/DATA/MANIP/Manip préliminaire/LAMBDA/Analyse Laure/Pour rapport/RMD/PREFERENCE_Comptage_oeufs_GO.csv", sep=";",header=T,dec = ",")
+dPREF<-dPREF[,1:5]
+dPREF$obs<-as.factor(1:nrow(dPREF))
+dPREF$Treatment<-dPREF$fruit
+head(dPREF)
+```
+
+## Compo
+```{r }
+data_compo<-read.table( "/Users/olazcuag/Documents/These_28022019/Documents/These/RH/Stagiaire/Projet phosphore/Analyse puissance/Data_compo_fruits_clean_12evolexp_english.csv",sep=';',dec=",",header=T)
+head(data_compo)
+```
+
+
+## Merge
+```{r }
+data<-merge (x = dPREF, y = data_compo, by = "Treatment", all.x = TRUE)
+data$logphosphorus<-log(data$Phosphorus+1)
+```
+
+
+# Models
+##Modele classique 
+```{r }
+mod0<-glmer(nb_oeufs ~  Phosphorus + (1|boite) + (1|obs), 
+            data=data, family="poisson")
+summary(mod0)
+
+mod1<-glmer(nb_oeufs ~  1 + (1|boite)+ (1|obs), data=data, family="poisson")
+
+anova(mod0,mod1, test = "Chisq" )
+#Effet du Phosphore! 
+```
+
+##Sample 
+```{r }
+
+
+#data vide 
+nb_sample<-seq(1:length(unique(data$boite)))
+
+
+#Choix des boites : 
+
+test <- function(simul, nb_boite) {
+
+vector_boite<- sample(unique(data$boite),size = nb_boite)
+data_subset<-data[data$boite %in% vector_boite, ]
+
+mod0<-glmer(nb_oeufs ~  Phosphorus + (1|boite) + (1|obs), 
+            data=data_subset, family="poisson")
+mod1<-glmer(nb_oeufs ~  1 + (1|boite)+ (1|obs), 
+            data=data_subset, family="poisson")
+
+pval = anova(mod0,mod1, test = "Chisq" ) [2,8]
+
+rm(mod0)
+rm(mod1)
+
+return(pval)
+
+}
+
+simul=100
+boite=20 #length(unique(data$boite))
+
+#Generer toutes les combinaisons de paramètres à tester 
+val_simul<-c(1:simul)
+val_boite<-c(2:boite)
+
+value_param <- expand.grid("val_boite" = val_boite,
+                           "val_simul" = val_simul)
+
+#Utilisation de mapply pour lancer la fonction sim_normal sur l'ensemble des combinaisons de parametres
+data_simul<-data.frame(pval=mapply(test,simul=value_param$val_simul,
+                              nb_boite=value_param$val_boite))
+
+data_simul$nb_boite<-value_param$val_boite
+data_simul$Simul<- value_param$val_simul
+
+prop_sign<-rep(NA,length(val_boite))
+data_simul_p<-data.frame(val_boite,
+                      prop_sign)
+
+
+#Calcul pour chacune des méthodes
+for (i in 1:length(val_boite)) { 
+data_simul_p$prop_sign[i]  <-
+  length(which(x=(data_simul$pval[data_simul$nb_boite==val_boite[i]])< 0.05))/simul}
+
+data_simul_p
+
+```
+
+
+#Plot
+```{r }
+
+plot_prop<-ggplot(data=data_simul_p, aes(x=val_boite,y=prop_sign)) + 
+ geom_point() + 
+  geom_line() + 
+  ylab ("Proportion de tests significatifs") + 
+  xlab("Nb de boites")
+plot_prop
+```
+
+
+#Save
+```{r }
+
+name<-paste0("/Users/olazcuag/Documents/These_28022019/Documents/These/RH/Stagiaire/Projet phosphore/Analyse puissance/Plot_nbsimul",simul,".pdf")
+
+name_table<-paste0("/Users/olazcuag/Documents/These_28022019/Documents/These/RH/Stagiaire/Projet phosphore/Analyse puissance/Tab_nbsimul",simul,".xls")
+
+#save_plot(name, plot_prop, base_height = 10/cm(1), base_width = 14/cm(1), dpi = 1200)
+
+write.table(data_simul_p,name_table, col=NA, sep="\t",dec=",")
+```
