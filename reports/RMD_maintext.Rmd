@@ -23,38 +23,6 @@ devtools::load_all()
 
 
 # DATA
-## Color fruits
-```{r }
-
-data_color <- read.table(file=here::here("data", "Data_color_fruits.csv"), sep=",", header=TRUE)
-head(data_color)
-
-data_color$hex_code <- paste0("#",data_color$hex)
-
-rgba_array <- col2rgb(data_color$hex_code, alpha=TRUE )
-data_color$red <- rgba.array[1,]
-data_color$green <- rgba.array[2,]
-data_color$blue <- rgba.array[3,]
-
-hcl_array <- as(colorspace::hex2RGB(data_color$hex_code), "polarLUV")
-S4_to_dataframe <- function(s4obj) {
-  nms <- slotNames(s4obj)
-  lst <- lapply(nms, function(nm) slot(s4obj, nm))
-  as.data.frame(setNames(lst, nms))
-}
-hcl_array_clean <- S4_to_dataframe(hcl_array)
-
-data_color$luminance <- hcl_array_clean[,1] #(whether a color is light or dark)
-data_color$chroma <- hcl_array_clean[,2] #how colorful the color is compared to a gray with the same
-data_color$hue <- hcl_array_clean[,3]
-
-
-rm(hcl_array,rgba_array, hcl_array)
-
-head(data_color)
-
-```
-
 ## Preference data
 ```{r }
 data_phosphorus  <- read.table(file=here::here("data", "DATA_PHOSPHORUS_test_arenas.csv"), sep=",", header=TRUE)
@@ -83,6 +51,45 @@ data_compo_clean <- data.frame(Fruit = data_compo$Treatment,
 ```
 
 
+
+## Color fruits
+```{r }
+
+data_color <- read.table(file=here::here("data", "Data_color_fruits.csv"), sep=",", header=TRUE)
+head(data_color)
+
+#Function to transform data
+S4_to_dataframe <- function(s4obj) {
+  nms <- slotNames(s4obj)
+  lst <- lapply(nms, function(nm) slot(s4obj, nm))
+  as.data.frame(setNames(lst, nms))
+}
+
+
+data_color$hex_code <- paste0("#",data_color$hex)
+
+#rgba_array <- col2rgb(data_color$hex_code, alpha=TRUE )
+rgba_array <- colorspace::hex2RGB(data_color$hex_code)
+rgba_array_clean <- S4_to_dataframe(rgba_array)
+data_color$red <- rgba_array_clean[,1]
+data_color$green <- rgba_array_clean[,2]
+data_color$blue <- rgba_array_clean[,3]
+
+hcl_array <- as(colorspace::hex2RGB(data_color$hex_code), "polarLUV")
+hcl_array_clean <- S4_to_dataframe(hcl_array)
+
+data_color$luminance <- hcl_array_clean[,1] #(whether a color is light or dark)
+data_color$chroma <- hcl_array_clean[,2] #how colorful the color is compared to a gray with the same
+data_color$hue <- hcl_array_clean[,3]
+
+
+rm(rgba_array_clean,hcl_array,rgba_array, hcl_array)
+
+head(data_color)
+
+```
+
+
 ## Merge dataset
 ```{r }
 
@@ -99,7 +106,15 @@ data_color <- merge(data_color, data_compo_clean,
 
 
 # ANALYSIS
-## Phosphore standard vs control
+## Correlation eggs ~ concentration P
+```{r}
+cor.test(data_control$Nb_eggs, data_control$Concentration, method="spearman")
+cor.test(data_phosphorus$Nb_eggs, data_phosphorus$Concentration, method="spearman")
+
+```
+
+
+## LRT
 ```{r }
 
 #Phosphorus effect
@@ -109,6 +124,22 @@ lm1 <- lme4::glmer(Nb_eggs ~ 1 + (1|ArenaID) + (1|Row:Column) + (1|obs),
              data = data_phosphorus, family = poisson(link = "log"))
 anova(lm0,lm1,test="Chisq")
 
+rr2::R2(mod = lm0, mod.r = lm1)
+
+
+
+#Equation
+pval <- anova(lm0,lm1,test="Chisq")[2,8]
+r2 <- rr2::R2(mod = lm0, mod.r = lm1)[1]
+equation_phosphore <- as.character(as.expression(substitute(~~italic("P-value")~"="~pval~","
+                                                            ~~italic(r)^2~"="~r2,
+                            list(pval =ifelse(pval<0.001,
+                                               "< 0.001",
+                                               format(pval, digits = 2, nsmall=2)),
+                                 r2 = format(r2, digits = 2)))))
+
+
+
 
 #Control treatment
 lm0 <- lme4::glmer(Nb_eggs ~ Concentration + (1|ArenaID) + (1|Row:Column) + (1|obs), 
@@ -116,61 +147,198 @@ lm0 <- lme4::glmer(Nb_eggs ~ Concentration + (1|ArenaID) + (1|Row:Column) + (1|o
 lm1 <- lme4::glmer(Nb_eggs ~ 1 + (1|ArenaID) + (1|Row:Column) + (1|obs), 
              data = data_control, family = poisson(link = "log"))
 anova(lm0,lm1,test="Chisq")
+rr2::R2(mod = lm0, mod.r = lm1)
+
+
+#Equation
+pval <- anova(lm0,lm1,test="Chisq")[2,8]
+r2 <- rr2::R2(mod = lm0, mod.r = lm1)[1]
+equation_control <-as.character(as.expression(substitute(~~italic("P-value")~pval~","
+                                                          ~~italic(r)^2~"="~r2,
+                             list(pval =ifelse(pval<0.001,
+                                               "< 0.001",
+                                               format(pval, digits = 2, nsmall=2)), 
+                                  r2 = format(r2, digits = 2, nsmall=2)))))
+
+
+
+# 
+# text_control_r <- as.character(as.expression(substitute(~"R2")~"="~r2,
+#                                       list(pval = format(r2, digits = 2, nsmall=2))) 
+# 
+# 
+# 
+# 
+# 
+# text_control_p <- as.character(as.expression(substitute(~~italic("P-value")~"="~pval~","~~italic(r)^2~"="~r2,                                   list(pval = format(pval, digits = 2, nsmall=2))) 
+# text_control_r <- as.character(as.expression(substitute(~"R2")~"="~r2,
+#                                       list(pval = format(r2, digits = 2, nsmall=2))) 
+
+
 
 
 
 ```
 
 
-# PLOT
+
+
+
+## Predict
 ```{r }
+#Phosphorus
+lm1 <- lme4::glmer(Nb_eggs ~ 1 + (1|ArenaID) + (1|Row:Column) + (1|obs), 
+             data = data_phosphorus, family = poisson(link = "log"))
+
+data_predict_phosphorus <- expand.grid(Concentration = seq(min(data_phosphorus$Concentration),
+                                                        max(data_phosphorus$Concentration),0.001) )
+data_predict_phosphorus$Nb_eggs <- predict(lm1, newdata = data_predict_phosphorus,  
+                                        type ="response", re.form= NA)
+
+Intercept_phosphorus = log(exp(lme4::fixef(lm1)[1])+1)
+
+
+
+
+#Control
+lm0 <- lme4::glmer(Nb_eggs ~ Concentration + (1|ArenaID) + (1|Row:Column) + (1|obs), 
+             data = data_control, family = poisson(link = "log"))
+
+data_predict_control <- expand.grid(Concentration = seq(min(data_control$Concentration),
+                                                        max(data_control$Concentration),0.001), 
+                        ArenaID = "P180", 
+                        obs = "10",
+                        Row = "1", 
+                        Column="2")
+data_predict_control$Nb_eggs <- predict(lm0, newdata = data_predict_control,  
+                                        type ="response")
+
+Intercept_fruit = log(exp(lme4::fixef(lm0)[1])+1)
+Slope_fruit = log(exp(lme4::fixef(lm0)[2])+1)
+
+
+
+```
+
+
+
+## Log transformation 
+```{r }
+
+# To see differences: log transformation
+data_phosphorus$Nb_eggs_transformed <- log(data_phosphorus$Nb_eggs+1)
+data_control$Nb_eggs_transformed <- log(data_control$Nb_eggs+1)
+data_predict_phosphorus$Nb_eggs_transformed <- log(data_predict_phosphorus$Nb_eggs+1)
+data_predict_control$Nb_eggs_transformed <- log(data_predict_control$Nb_eggs+1)
+
+
+#SUMMARY
 SUM_Phosphore <- Rmisc::summarySE(data_phosphorus, 
-                        measurevar = c("Nb_eggs"),
+                        measurevar = c("Nb_eggs_transformed"),
                        groupvars = c("Concentration"), 
                        na.rm=TRUE)
 
-PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Concentration, y = Nb_eggs)) + 
-  geom_point(data = SUM_Phosphore, aes(x = Concentration, y = Nb_eggs), 
-             size = 5, position = position_dodge(0.8)) +
-  geom_errorbar(data = SUM_Phosphore, aes(x = Concentration,
-                                          ymin = Nb_eggs-ci, ymax = Nb_eggs+ci,), 
-             size = 1, width=.05,  position = position_dodge(0.4)) +
-  geom_point(position = position_dodge(width = 0.7), size = 0.8, alpha = 0.6) +
-    xlim(-0.05,1.7) +
-  ylab("Number of eggs") +
-  xlab("Phosphorus concentration") +
-  theme_LO_sober
-PLOT_Phosphorus_average
-
-
 SUM_Control <- Rmisc::summarySE(data_control, 
-                        measurevar = c("Nb_eggs"),
+                        measurevar = c("Nb_eggs_transformed"),
                        groupvars = c("Concentration",
                                      "Fruit"), 
                        na.rm=TRUE)
 
 
+```
+
+
+
+# PLOT
+```{r }
+#PLOT
+PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Concentration, 
+                                                                y = Nb_eggs_transformed)) + 
+  geom_jitter(width = 0.03, size = 0.9, alpha = 0.1) +
+  geom_hline(yintercept = Intercept_phosphorus,
+            color = "darkred", size = 1, linetype = "longdash") +
+  geom_point(data = SUM_Phosphore, aes(x = Concentration, y = Nb_eggs_transformed), 
+             size = 5) +
+  geom_errorbar(data = SUM_Phosphore, aes(x = Concentration,
+                                          ymin = Nb_eggs_transformed-ci, 
+                                          ymax = Nb_eggs_transformed+ci,), 
+             size = 1, width=.05) +
+  xlim(-0.05,1.7) +
+  ylab("log(Number of eggs+1)") +
+  xlab("Phosphorus concentration") +
+  annotate(geom = "text", x = 0.25, y = max(data_phosphorus$Nb_eggs_transformed), 
+           label = equation_phosphore, color="black", parse = TRUE, size = 3) + 
+  #ggplot2::scale_y_continuous(trans = scales::log2_trans()) +
+  #ggplot2::scale_y_continuous(trans = "log10") +
+  # scale_y_continuous(trans = "sqrt", 
+  #                    breaks = c(0,1,25,50,75,100),
+  #                    labels = as.character(c(0,1,25,50,75,100))) + 
+  theme_LO_sober 
+PLOT_Phosphorus_average
+
+
+
 PLOT_Control_average <- ggplot2::ggplot(data_control, 
-                                        aes(x = Concentration, y = Nb_eggs,
+                                        aes(x = Concentration, y = Nb_eggs_transformed,
                                             color= Fruit)) + 
-  geom_point(data = SUM_Control, aes(x = Concentration, y = Nb_eggs), 
-             size = 5, position = position_dodge(0.8)) +
+  geom_text(data = SUM_Control, aes(label = Fruit,  color= Fruit),
+            hjust=0.5, vjust=-10.5) + 
+  geom_jitter(width = 0.005, size = 0.9, alpha = 0.5) +
+  geom_abline(slope = Slope_fruit, 
+              intercept = Intercept_fruit,
+            color = "darkred", size = 1, linetype = "longdash") +
+  geom_point(data = SUM_Control, aes(x = Concentration, 
+                                     y = Nb_eggs_transformed), 
+             size = 5) +
   geom_errorbar(data = SUM_Control, aes(x = Concentration,
-                                          ymin = Nb_eggs-ci, ymax = Nb_eggs+ci,), 
-             size = 1, width=.01,  position = position_dodge(0.2)) +
-  geom_point(position = position_dodge(width = .05), size = 0.8, alpha = 0.6) +
+                                          ymin = Nb_eggs_transformed-ci,
+                                    ymax = Nb_eggs_transformed+ci,), 
+             size = 1, width=.01) +
+  # scale_y_continuous(trans = "sqrt", 
+  #                    breaks = c(0,1,25,50,75,100),
+  #                    labels = as.character(c(0,1,25,50,75,100))) +
+  annotate(geom = "text", x = 0.05, y = max(data_control$Nb_eggs_transformed), 
+           label = equation_control, color="black", parse = TRUE, size = 3) + 
   scale_color_manual(name="Fruit",
-                     breaks = c("Tomato","Grape","Blackberry","Kiwi", "Raspberry", "Strawberry","Fig", "Rosehips", "Cherry","Blackcurrant", "Cranberry", "Apricot"), 
-                    labels = c("Tomato","Grape","Blackberry","Kiwi", "Raspberry", "Strawberry","Fig", "Rosehips", "Cherry","Blackcurrant", "Cranberry", "Apricot"), 
-                    values = c("#e31a1c","#b2df8a","#1f78b4","#33a02c", "#fdbf6f", "#fb9a99","#6a3d9a", "#b15928", "#cab2d6","#a6cee3", "#e7e700", "#ff7f00")) +
+                     breaks = c("Tomato","Grape","Blackberry","Kiwi",
+                                "Raspberry", "Strawberry","Fig", "Rosehips",
+                                "Cherry","Blackcurrant", "Cranberry", "Apricot"), 
+                    labels = c("Tomato","Grape","Blackberry","Kiwi", "Raspberry",
+                               "Strawberry","Fig", "Rosehips", "Cherry","Blackcurrant", 
+                               "Cranberry", "Apricot"), 
+                    values = c("#e31a1c","#b2df8a","#1f78b4","#33a02c",
+                               "#fdbf6f", "#fb9a99","#6a3d9a", "#b15928",
+                               "#cab2d6","#a6cee3", "#e7e700", "#ff7f00")) +
+  theme(legend.position="none") + 
   xlim(-0.005,0.325) +
-  ylab("Number of eggs") +
+  ylab("log(number of eggs+1)") +
   xlab("Phosphorus concentration") +
   theme_LO_sober
 PLOT_Control_average
 
 
 
+
+
+## ALL GENERATIONS 
+
+Plot_Phosphorus_Fruits <- cowplot::plot_grid(PLOT_Phosphorus_average,
+                        PLOT_Control_average,
+                        labels = c("A", "B"), ncol = 1, nrow = 2,
+                        scale = c(0.95, 0.95))
+Plot_Phosphorus_Fruits
+
+
+cowplot::save_plot(file =here::here("figures", "Figure1.pdf"),
+                   Plot_Phosphorus_Fruits,
+                   base_height = 20/cm(1), base_width = 16/cm(1), dpi = 610)
+
+
+ 
+ 
+
+
+ 
 ```
 
 
@@ -195,8 +363,11 @@ PLOT_Control_average
 
 
 
-# Plot color
+# Extra analysis: Color test 
 ```{r }
+
+dim(data_color)
+data_color<-data_color[data_color$box<=100,]
 
 desc1 <- psych::describeBy(data_color$red, data_color$fruit, mat =TRUE, digits =2)
 desc1 <- desc1[order(desc1$group1),]
@@ -386,147 +557,63 @@ cowplot::save_plot(file=here::here("figures", "Hue_color.pdf"),
 
 
 
-# OLD
-
-# Plots
-
-## Histogrammes du nombre d'oeuf par emplacement de boite de 12
+# Extra analysis: Position effect
+### Position effect
 ```{r }
-# histogram(~nb_oeufs|ligne*colonne, data=P, main="Nombre d'oeuf par emplacement, phosphore")
-# histogram(~nb_oeufs|ligne*colonne, data=Fr, main="Nombre d'oeuf par emplacement, fruit")
-```
 
-## Nb_oeufs~concentration
-```{r }
-ggplot(P, aes(x=concentration, 
-              y=nb_oeufs, group=concentration))+
-  geom_boxplot(notch=F,aes(fill=concentration))+
-  theme_LO_sober +
-  ggtitle("Nombre de pontes en fonction de la concentration en phosphore du milieu")
-
-```
-
-On remarque ici que les moyennes de nombre de ponte en fonction de la concentration en phosphore restent sensiblement égales quelque soit la concentration en phosphore du milieu. 
-
-## Nb_oeufs~fruit
-```{r }
-ggplot(Fr, aes(x=fruit, y=nb_oeufs, group=fruit))+geom_boxplot(notch=F,aes(fill=fruit))+theme_bw()+ggtitle("Nombre de pontes en fonction du fruit contenu dans le milieu")
-
-fruit <- data.frame(tapply(Fr$nb_oeufs,Fr$fruit,mean))
-fruit <- cbind(fruit, c("0.132","0.288","0.236","0","0.175","0.159","0.128","0.142","0.123","0.309","0.0506","0.107"))
-fruit <- cbind(fruit, c("abricot","cassis","cerise","cranberry","eglantine","figue","fraise","framboise","kiwi","mure","raisin","tomate"))
-colnames(fruit) <- c("mean","phosphorus", "fruits")
-fruit$phosphorus <- as.numeric(as.character(fruit$phosphorus))
-
-plot(fruit$mean~fruit$phosphorus, ylab="Mean egg number",xlab="phosphorus content in g/l", pch="", main="Moyennes des pontes dans les différents milieux fruit")
-text(fruit$mean~fruit$phosphorus,labels=fruit$fruits)
-
-```
-
-On retrouve bien la tendance déjà découverte par Laure sur les fruits : les milieux de ponte préférés sont Cerise, Cassis et Mûre. On voit aussi que la Figue et la Framboise sont plus préférées que lors des tests précédents. Ces résultats prouvent que l'effet de préférence du phosphore dans les fruits peut êtrre détecté chez une lignée consanguine de laboratoire, comme chez une population sauvage. 
-
-# Analyses stats.
-
-## Phosphore 
-### Test de corrélation nombre d'oeufs ~ concentration P
-```{r}
-cor.test(P$nb_oeufs, as.numeric(P$concentration), method="spearman")
-```
-
-### Concentrations
-```{r }
-concentration <- data.frame(tapply(P$nb_oeufs,P$concentration,mean, na.rm=T))
-stdev <- tapply(P$nb_oeufs,P$concentration, sd, na.rm=T)
-concentration <- cbind(concentration, c("0","0.15","0.3","0.45","0.6","0.75","0.9","1.05","1.2","1.35","1.5","1.65"))
-colnames(concentration) <- c("mean","concentration")
-ggplot(concentration, aes(x=concentration, y=mean))+geom_point()+ggtitle("Moyennes des pontes suivant la concentration du milieu en phosphore")
-```
-
-### GLM
-```{r }
-lm0 <- glmer(nb_oeufs~1+(1|boite)+(1|ligne:colonne) + (1|obs), data=P, family = poisson(link = "log"))
-summary(lm0)
-lm1 <- glmer(nb_oeufs~concentration+(1|boite)+(1|ligne:colonne) + (1|obs), data=P, family = poisson(link = "log"))
-summary(lm1)
-anova(lm0,lm1,test="Chisq")
-
-P$concentrationsq <- P$concentration^2
-lm2 <-  glmer(nb_oeufs~concentration+concentrationsq+(1|boite)+(1|ligne:colonne) + (1|obs), data=P, family = poisson(link = "log"))
-summary(lm2)
-anova(lm1,lm2,test="Chisq")
-lm4 <- glm(nb_oeufs~ligne:colonne +boite, data=P, family = poisson(link = "log"))
-P$resid <- residuals(lm4)
-
-ggplot(P, aes(x=factor(concentration), col=factor(concentration), y=resid))+geom_boxplot()
-
-```
-
-Les résultats retrouvés ici sont inverses à ceux découverts avec les milieux fruits. Les milieux les pus concentrés en phosphore sont délaissés par les D.suzuki au profit des milieux les moins concentrés.
-
-#### Effet de la position 
-```{r }
-lm4 <- glmer(nb_oeufs~(1|ligne:colonne)+(1|boite), data=P, family = poisson(link = "log"))
+#Phosphorus
+lm4 <- lme4::glmer(Nb_eggs~(1|Row:Column)+(1|ArenaID), 
+                   data=data_phosphorus, family = poisson(link = "log"))
+lm0 <- lme4::glmer(Nb_eggs~(1|ArenaID), 
+                   data=data_phosphorus, family = poisson(link = "log"))
 anova(lm0,lm4, test="Chisq")
-ranef(lm4)
+lme4::ranef(lm4)
+summary(lm4)
+
+
+#Fruits
+lm4 <- lme4::glmer(Nb_eggs~(1|Row:Column)+(1|ArenaID), 
+                   data=data_control, family = poisson(link = "log"))
+lm0 <- lme4::glmer(Nb_eggs~(1|ArenaID), 
+                   data=data_control, family = poisson(link = "log"))
+anova(lm0,lm4, test="Chisq")
+lme4::ranef(lm4)
 summary(lm4)
 ```
 
-Il pourrait y avoir un effet d'autocorrélation spatiale à tester ici. 
+Potentiel autocorrelatione effect 
 
-### Pontes moyennes par position
 
+### Mean eggs per compartments
 ```{r }
-spatial_mean <-(tapply(P$nb_oeufs, list(colonne=P$colonne, ligne=P$ligne), mean))
-spatial_mean_melted <- melt(spatial_mean)
-hm.palette <- colorRampPalette(rev(brewer.pal(11, 'Spectral')), space='Lab')
-ggplot(spatial_mean_melted, aes(x = colonne, y = ligne, fill = value)) + 
-  geom_tile()+
-  scale_fill_gradientn(colours = hm.palette(100))
+spatial_mean <-(tapply(data_phosphorus$Nb_eggs, list(Column=data_phosphorus$Column, 
+                                                      Row=data_phosphorus$Row), mean))
+spatial_mean_melted <- reshape2::melt(spatial_mean)
+hm.palette <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11, 'Spectral')), 
+                                          space='Lab')
+ggplot(spatial_mean_melted, aes(x = Column, y = Row, fill = value)) + 
+  ggplot2::geom_tile()+
+  ggplot2::scale_fill_gradientn(colours = hm.palette(100))
+
+
+
+
+
+spatial_mean <-(tapply(data_control$Nb_eggs, list(Column=data_control$Column, 
+                                                      Row=data_control$Row), mean))
+spatial_mean_melted <- reshape2::melt(spatial_mean)
+hm.palette <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11, 'Spectral')), 
+                                          space='Lab')
+ggplot(spatial_mean_melted, aes(x = Column, y = Row, fill = value)) + 
+  ggplot2::geom_tile()+
+  ggplot2::scale_fill_gradientn(colours = hm.palette(100))
 ```
 
-Les moyennes de ontes sont largement plus élevées sur les lignes externes des boites et notamment dans les colonnes de gauche. 
 
-### Modèles prenant en compte l'autocorrélation spatiale
+### Model with autocorrelation
 ```{r }
 ```
 
-## Fruits
 
-### Corrélation phosphore
-```{r}
-cor.test(fruit$mean, as.numeric(fruit$phosphorus), method="spearman")
-```
-
-On remarque une corrélation positive entre les moyennnes des pontes sur milieux fruit et leur concentration en phosphore. 
-
-### GLM
-```{r}
-
-lm0 <- glmer(nb_oeufs~1+(1|boite), data=Fr, family = poisson(link = "log"))
-lm1 <- glmer(nb_oeufs~fruit+(1|boite), data=Fr, family = poisson(link = "log"))
-lm2 <- glm(nb_oeufs~fruit, data=Fr, family = poisson(link = "log"))
-
-anova(lm0,lm1,test="Chisq")
-anova(lm1,lm2,test="Chisq")
-```
-La tendance observée sur les boxplots des pontes sur milieux fruits est confirmée. Les fruits les plus concentrés en phosphore sont préférés par les D.suzuki. 
-
-### Pontes moyennes par position
-
-```{r }
-spatial_mean_fr <-(tapply(Fr$nb_oeufs, list(colonne=Fr$colonne, ligne=Fr$ligne), mean))
-spatial_mean_fr_melted <- melt(spatial_mean_fr)
-ggplot(spatial_mean_fr_melted, aes(x = colonne, y = ligne, fill = value)) + 
-  geom_tile()+
-  scale_fill_gradientn(colours = hm.palette(100))
-```
-
-Pour les boîtes de fruit, on observe des pontes moyennes largement plus élevées dans le coin bas gauche des boîtes.  Il faudrait donc également essayer de fitter un modèle prenant en compte l'impact de la position des milieux sur les données fruits. 
-On retrouve une moyenne de ponte élevée dans le coin bas gauche de boites de milieux phosphore et fruit. 
-
-# Conclusion 
-Plusieurs hypothèses restent à tester. Tout d'abord l'effet possible d'une autocorrélation spatiale. Pour tester  cette première hypothèse, il faudra créer un modèle la prenant en compte. 
-Une autre possibilité pouvant expliquer l'effet négatif de la concentration en P sur le nombre de pontes est qu'il existe une molécule dans les milieux fruits qui, lorsque liée à du phosphore induirait une préférence du milieu pour les D.suzuki. Cette hypothèse nécessite l'étude de la composition exacte des milieux de fruits comme des milieux phosphore de notre expérience. 
-La dernière hypothèse dont nous avons discuté est que les milieux riches en phosphores créent une saturation de l'air qui tromperait les mouches dans le choix de leur milieux de préférence. Toutefois cette hypothèse n'est pas soutenue par les heatmaps réalisés sur le nombre de pontes moyen par emplacement dans les boites de 12. Cette hypothèse, comme la précédente, pourra être testée avec une étude approfondie de la composition chimique des milieux. 
 
 
