@@ -392,7 +392,7 @@ Plot_Color_Fruits
 
 cowplot::save_plot(file =here::here("figures", "Figure2.pdf"),
                    Plot_Color_Fruits,
-                   base_height = 20/cm(1), base_width = 32/cm(1), dpi = 610)
+                   base_height = 18/cm(1), base_width = 30/cm(1), dpi = 610)
 
 
 
@@ -415,24 +415,24 @@ COL_VECTOR <- c("Apricot" = "#ff7f00",  "Blackberry" = "#1f78b4", "Blackcurrant"
 
 cor_test <- cor.test(desc1$mean, desc2$mean)
 title <- paste("P-value = ", cor_test$p.value)
-
-cowplot::save_plot(file=here::here("figures", "Red_color.pdf"),
-          psych::error.crosses(desc1, desc2,
-              labels = desc1$group1,
-              xlab = "Color: Red",
-              ylab = "Number of eggs",
-              offset = 2, las = 1,
-              main = title,
-              sd =F, 
-              cex.lab= 1.5,
-              cex.axis = 1.5,
-              arrow.len = 0.01,
-              color = COL_VECTOR,
-              pch = 16,
-              cex = 1.5),
-         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
-
-
+# 
+# cowplot::save_plot(file=here::here("figures", "Red_color.pdf"),
+#           psych::error.crosses(desc1, desc2,
+#               labels = desc1$group1,
+#               xlab = "Color: Red",
+#               ylab = "Number of eggs",
+#               offset = 2, las = 1,
+#               main = title,
+#               sd =F, 
+#               cex.lab= 1.5,
+#               cex.axis = 1.5,
+#               arrow.len = 0.01,
+#               color = COL_VECTOR,
+#               pch = 16,
+#               cex = 1.5),
+#          base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+# 
+# 
 
 
 
@@ -444,22 +444,22 @@ desc1 <- desc1[order(desc1$group1),]
 cor_test <- cor.test(desc1$mean, desc2$mean)
 title <- paste("P-value = ", cor_test$p.value)
 
-cowplot::save_plot(file=here::here("figures", "Green_color.pdf"),
-          psych::error.crosses(desc1, desc2,
-              labels = desc1$group1,
-              xlab = "Color: Green",
-              ylab = "Number of eggs",
-              offset = 2, las = 1,
-              main = title,
-              sd =F, 
-              cex.lab= 1.5,
-              cex.axis = 1.5,
-              arrow.len = 0.01,
-              color = COL_VECTOR,
-              pch = 16,
-              cex = 1.5),
-         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
-
+# cowplot::save_plot(file=here::here("figures", "Green_color.pdf"),
+#           psych::error.crosses(desc1, desc2,
+#               labels = desc1$group1,
+#               xlab = "Color: Green",
+#               ylab = "Number of eggs",
+#               offset = 2, las = 1,
+#               main = title,
+#               sd =F, 
+#               cex.lab= 1.5,
+#               cex.axis = 1.5,
+#               arrow.len = 0.01,
+#               color = COL_VECTOR,
+#               pch = 16,
+#               cex = 1.5),
+#          base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+# 
 
 
 
@@ -469,22 +469,22 @@ desc1 <- desc1[order(desc1$group1),]
 cor_test <- cor.test(desc1$mean, desc2$mean)
 title <- paste("P-value = ", cor_test$p.value)
 
-cowplot::save_plot(file=here::here("figures", "Blue_color.pdf"),
-          psych::error.crosses(desc1, desc2,
-              labels = desc1$group1,
-              xlab = "Color: Blue",
-              ylab = "Number of eggs",
-              offset = 2, las = 1,
-              main = title,
-              sd =F, 
-              cex.lab= 1.5,
-              cex.axis = 1.5,
-              arrow.len = 0.01,
-              color = COL_VECTOR,
-              pch = 16,
-              cex = 1.5),
-         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
-
+# cowplot::save_plot(file=here::here("figures", "Blue_color.pdf"),
+#           psych::error.crosses(desc1, desc2,
+#               labels = desc1$group1,
+#               xlab = "Color: Blue",
+#               ylab = "Number of eggs",
+#               offset = 2, las = 1,
+#               main = title,
+#               sd =F, 
+#               cex.lab= 1.5,
+#               cex.axis = 1.5,
+#               arrow.len = 0.01,
+#               color = COL_VECTOR,
+#               pch = 16,
+#               cex = 1.5),
+#          base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+# 
 
 
 
@@ -496,21 +496,21 @@ desc1 <- desc1[order(desc1$group1),]
 cor_test <- cor.test(desc1$mean, desc2$mean)
 title <- paste("P-value = ", cor_test$p.value)
 
-cowplot::save_plot(file=here::here("figures", "Luminance_color.pdf"),
-          psych::error.crosses(desc1, desc2,
-              labels = desc1$group1,
-              xlab = "Color: Luminance",
-              ylab = "Number of eggs",
-              offset = 2, las = 1,
-              main = title,
-              sd =F, 
-              cex.lab= 1.5,
-              cex.axis = 1.5,
-              arrow.len = 0.01,
-              color = COL_VECTOR,
-              pch = 16,
-              cex = 1.5),
-         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+# cowplot::save_plot(file=here::here("figures", "Luminance_color.pdf"),
+         #  psych::error.crosses(desc1, desc2,
+         #      labels = desc1$group1,
+         #      xlab = "Color: Luminance",
+         #      ylab = "Number of eggs",
+         #      offset = 2, las = 1,
+         #      main = title,
+         #      sd =F, 
+         #      cex.lab= 1.5,
+         #      cex.axis = 1.5,
+         #      arrow.len = 0.01,
+         #      color = COL_VECTOR,
+         #      pch = 16,
+         #      cex = 1.5),
+         # base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
 
 
 
@@ -522,21 +522,21 @@ desc1 <- desc1[order(desc1$group1),]
 cor_test <- cor.test(desc1$mean, desc2$mean)
 title <- paste("P-value = ", cor_test$p.value)
 
-cowplot::save_plot(file=here::here("figures", "Chroma_color.pdf"),
-          psych::error.crosses(desc1, desc2,
-              labels = desc1$group1,
-              xlab = "Color: Chroma",
-              ylab = "Number of eggs",
-              offset = 2, las = 1,
-              main = title,
-              sd =F, 
-              cex.lab= 1.5,
-              cex.axis = 1.5,
-              arrow.len = 0.01,
-              color = COL_VECTOR,
-              pch = 16,
-              cex = 1.5),
-         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+# cowplot::save_plot(file=here::here("figures", "Chroma_color.pdf"),
+#           psych::error.crosses(desc1, desc2,
+#               labels = desc1$group1,
+#               xlab = "Color: Chroma",
+#               ylab = "Number of eggs",
+#               offset = 2, las = 1,
+#               main = title,
+#               sd =F, 
+#               cex.lab= 1.5,
+#               cex.axis = 1.5,
+#               arrow.len = 0.01,
+#               color = COL_VECTOR,
+#               pch = 16,
+#               cex = 1.5),
+#          base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
 
 
 
@@ -546,21 +546,21 @@ desc1 <- desc1[order(desc1$group1),]
 cor_test <- cor.test(desc1$mean, desc2$mean)
 title <- paste("P-value = ", cor_test$p.value)
 
-cowplot::save_plot(file=here::here("figures", "Hue_color.pdf"),
-          psych::error.crosses(desc1, desc2,
-              labels = desc1$group1,
-              xlab = "Color: Hue",
-              ylab = "Number of eggs",
-              offset = 2, las = 1,
-              main = title,
-              sd =F, 
-              cex.lab= 1.5,
-              cex.axis = 1.5,
-              arrow.len = 0.01,
-              color = COL_VECTOR,
-              pch = 16,
-              cex = 1.5),
-         base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
+# cowplot::save_plot(file=here::here("figures", "Hue_color.pdf"),
+#           psych::error.crosses(desc1, desc2,
+#               labels = desc1$group1,
+#               xlab = "Color: Hue",
+#               ylab = "Number of eggs",
+#               offset = 2, las = 1,
+#               main = title,
+#               sd =F, 
+#               cex.lab= 1.5,
+#               cex.axis = 1.5,
+#               arrow.len = 0.01,
+#               color = COL_VECTOR,
+#               pch = 16,
+#               cex = 1.5),
+#          base_height = 20/cm(1), base_width = 20/cm(1), dpi = 1200)
 
 
 ```

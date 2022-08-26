@@ -81,7 +81,7 @@ plot_errorcrosses <- function(datasetx = data_color,
                                   "#fdbf6f", "#fb9a99","#6a3d9a", "#b15928",
                                   "#cab2d6","#a6cee3", "#e7e700", "#ff7f00")) +
     ggrepel::geom_text_repel(data = data, aes(label = fruit,  color = fruit),
-                             min.segment.length = Inf,box.padding = 0.55) + 
+                             min.segment.length = Inf, box.padding = 0.55) + 
     # geom_text(data = data, aes(label = fruit,  color = fruit),
     #           hjust=0.5, vjust=-10.5) + 
     theme_LO_sober + theme (
