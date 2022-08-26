@@ -91,6 +91,10 @@ rm(rgba_array_clean,hcl_array,rgba_array, hcl_array)
 
 head(data_color)
 
+
+data_color<-data_color[data_color$box<=100,]
+
+
 ```
 
 
@@ -253,7 +257,7 @@ SUM_Control <- Rmisc::summarySE(data_control,
 
 
 
-# PLOT
+# PLOT PHOSPHORUS
 ```{r }
 #PLOT
 PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Concentration, 
@@ -367,8 +371,7 @@ cowplot::save_plot(file =here::here("figures", "Figure1.pdf"),
 
 
 
-# Color analysis
-### Plot
+# PLOT COLOR
 ```{r }
 head(data_color)
 
@@ -383,8 +386,8 @@ plot_luminance <- plot_errorcrosses( traitx="luminance", xaxis_labelprint = "Col
 
 
 ## ALL CHARACTERISTICS
-Plot_Color_Fruits <- cowplot::plot_grid(plot_red,plot_green,plot_blue,
-                        plot_chroma,plot_hue,plot_luminance,
+Plot_Color_Fruits <- cowplot::plot_grid(plot_green,plot_red,plot_blue,
+                        plot_hue,plot_chroma,plot_luminance,
                         labels = c("A", "B","C","D","E","F"), ncol = 3, nrow = 2,
                         scale = c(0.95, 0.95))
 Plot_Color_Fruits
@@ -403,7 +406,6 @@ cowplot::save_plot(file =here::here("figures", "Figure2.pdf"),
 ```{r }
 
 dim(data_color)
-data_color<-data_color[data_color$box<=100,]
 
 desc1 <- psych::describeBy(data_color$red, data_color$fruit, mat =TRUE, digits =2)
 desc1 <- desc1[order(desc1$group1),]
