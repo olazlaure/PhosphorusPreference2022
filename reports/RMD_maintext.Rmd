@@ -367,7 +367,7 @@ cowplot::save_plot(file =here::here("figures", "Figure1.pdf"),
 
 
 
-## Extra analysis: Color test 
+# Color analysis
 ### Plot
 ```{r }
 head(data_color)

@@ -55,6 +55,10 @@ plot_errorcrosses <- function(datasetx = data_color,
                 all.x = TRUE, all.y = TRUE)
 
   
+  
+
+  
+  
   #Plot 
   plot_pair <- ggplot(data = data,
                       aes(x = traitx, 
@@ -84,6 +88,29 @@ plot_errorcrosses <- function(datasetx = data_color,
       panel.grid.major.y = element_blank(),
       panel.grid.minor.y = element_blank(),
       legend.position="none")
+  
+  
+  ## Correlation 
+  data$N <- (data$N.x+data$N.y)/2
+  
+  ## Compute weighted correlation
+  weightedcor <- sjstats:::weighted_correlation(data, x = traitx, 
+                                                y = traity, 
+                                                weights = N, 
+                                                ci.lvl = 0.95)
+  
+  # Equation
+  pval <- as.numeric(weightedcor$p.value[1])
+  rho_weighted <- as.numeric(weightedcor$estimate[1])
+  eq_rho <- as.character(as.expression(substitute(~~italic("P-value")~"="~pval~","~~italic(rho)~"="~rho_weighted~"["~inf~";"~sup~"]",
+                                                  list(pval = format(pval, digits = 2), 
+                                                       rho_weighted = format(rho_weighted, digits = 2), 
+                                                       inf = format(weightedcor$ci[1], digits = 1),
+                                                       sup = format(weightedcor$ci[2], digits = 1)))))
+  plot_pair <- plot_pair + geom_text(x = max(data$traitx), y = Inf, hjust = 1, vjust = 1, 
+                                                    label = eq_rho,
+                                                    parse = TRUE, 
+                                                    color="black", size = 3.5)
   
 
   return(plot_pair)
