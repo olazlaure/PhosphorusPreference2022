@@ -29,10 +29,11 @@ usethis::use_package("reshape2")
 usethis::use_package("Rmisc")
 usethis::use_package("psych")
 usethis::use_package("grDevices")
-
+usethis::use_package("ggrepel")
 
 ## Create a R directory and a file for functions
 usethis::use_r("theme_LO_sober")
+usethis::use_r("plot_errorcrosses")
 
 ## Update NAMESPACE file
 devtools::document()

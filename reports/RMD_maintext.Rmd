@@ -68,12 +68,16 @@ S4_to_dataframe <- function(s4obj) {
 
 data_color$hex_code <- paste0("#",data_color$hex)
 
-#rgba_array <- col2rgb(data_color$hex_code, alpha=TRUE )
-rgba_array <- colorspace::hex2RGB(data_color$hex_code)
-rgba_array_clean <- S4_to_dataframe(rgba_array)
-data_color$red <- rgba_array_clean[,1]
-data_color$green <- rgba_array_clean[,2]
-data_color$blue <- rgba_array_clean[,3]
+rgba_array <- col2rgb(data_color$hex_code)
+data_color$red <- rgba_array[1,]
+data_color$green <- rgba_array[2,]
+data_color$blue <- rgba_array[3,]
+
+# rgba_array <- colorspace::hex2RGB(data_color$hex_code)
+# rgba_array_clean <- S4_to_dataframe(rgba_array)
+# data_color$red <- rgba_array_clean[,1]
+# data_color$green <- rgba_array_clean[,2]
+# data_color$blue <- rgba_array_clean[,3]
 
 hcl_array <- as(colorspace::hex2RGB(data_color$hex_code), "polarLUV")
 hcl_array_clean <- S4_to_dataframe(hcl_array)
@@ -320,7 +324,7 @@ PLOT_Control_average
 
 
 
-## ALL GENERATIONS 
+## ALL PLOT 
 
 Plot_Phosphorus_Fruits <- cowplot::plot_grid(PLOT_Phosphorus_average,
                         PLOT_Control_average,
@@ -363,7 +367,39 @@ cowplot::save_plot(file =here::here("figures", "Figure1.pdf"),
 
 
 
-# Extra analysis: Color test 
+## Extra analysis: Color test 
+### Plot
+```{r }
+head(data_color)
+
+plot_red <- plot_errorcrosses( traitx="red", xaxis_labelprint = "Color: Red")
+plot_green <- plot_errorcrosses( traitx="green", xaxis_labelprint = "Color: Green")
+plot_blue <- plot_errorcrosses( traitx="blue", xaxis_labelprint = "Color: Blue")
+plot_chroma <- plot_errorcrosses( traitx="chroma", xaxis_labelprint = "Color: Chroma")
+plot_hue <- plot_errorcrosses( traitx="hue", xaxis_labelprint = "Color: Hue")
+plot_luminance <- plot_errorcrosses( traitx="luminance", xaxis_labelprint = "Color: Luminance")
+
+
+
+
+## ALL CHARACTERISTICS
+Plot_Color_Fruits <- cowplot::plot_grid(plot_red,plot_green,plot_blue,
+                        plot_chroma,plot_hue,plot_luminance,
+                        labels = c("A", "B","C","D","E","F"), ncol = 3, nrow = 2,
+                        scale = c(0.95, 0.95))
+Plot_Color_Fruits
+
+
+cowplot::save_plot(file =here::here("figures", "Figure2.pdf"),
+                   Plot_Color_Fruits,
+                   base_height = 20/cm(1), base_width = 32/cm(1), dpi = 610)
+
+
+
+```
+
+
+### Details
 ```{r }
 
 dim(data_color)
