@@ -272,7 +272,7 @@ PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Concentratio
                                           ymax = Nb_eggs_transformed+ci,), 
              size = 1, width=.05) +
   xlim(-0.05,1.7) +
-  ylab("log(Number of eggs+1)") +
+  ylab("log(number of eggs+1)") +
   xlab("Phosphorus concentration") +
   annotate(geom = "text", x = 0.25, y = max(data_phosphorus$Nb_eggs_transformed), 
            label = equation_phosphore, color="black", parse = TRUE, size = 3) + 
