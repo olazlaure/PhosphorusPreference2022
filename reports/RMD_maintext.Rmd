@@ -273,7 +273,7 @@ PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Concentratio
              size = 1, width=.05) +
   xlim(-0.05,1.7) +
   ylab("log(number of eggs+1)") +
-  xlab("Phosphorus concentration") +
+  xlab("Phosphorus content (g/kg)") +
   annotate(geom = "text", x = 0.25, y = max(data_phosphorus$Nb_eggs_transformed), 
            label = equation_phosphore, color="black", parse = TRUE, size = 3) + 
   #ggplot2::scale_y_continuous(trans = scales::log2_trans()) +
@@ -320,7 +320,7 @@ PLOT_Control_average <- ggplot2::ggplot(data_control,
   theme(legend.position="none") + 
   xlim(-0.005,0.325) +
   ylab("log(number of eggs+1)") +
-  xlab("Phosphorus concentration") +
+  xlab("Phosphorus content (g/kg)") +
   theme_LO_sober
 PLOT_Control_average
 
@@ -337,13 +337,13 @@ Plot_Phosphorus_Fruits <- cowplot::plot_grid(PLOT_Phosphorus_average,
 Plot_Phosphorus_Fruits
 
 
-cowplot::save_plot(file =here::here("figures", "Figure1.pdf"),
-                   Plot_Phosphorus_Fruits,
-                   base_height = 20/cm(1), base_width = 16/cm(1), dpi = 610)
-
-
- 
- 
+# cowplot::save_plot(file =here::here("figures", "Figure1.pdf"),
+#                    Plot_Phosphorus_Fruits,
+#                    base_height = 20/cm(1), base_width = 16/cm(1), dpi = 610)
+# 
+# 
+#  
+#  
 
 
  
