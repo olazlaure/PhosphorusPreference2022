@@ -103,8 +103,8 @@ return(pval)
 
 }
 
-simul=500
-box=10 #length(unique(data$box))
+simul=100
+box=70 #length(unique(data$box))
 
 #Create all the parameters that we want test
 val_simul<-c(1:simul)
@@ -144,7 +144,7 @@ backup <- data_simul_p
 plot_prop<-ggplot2::ggplot(data=data_simul_p, aes(x=val_box,y=prop_sign)) + 
  geom_point() + 
   geom_line() + 
-  ylab ("Proportion of simulations with a significant\nfruit phosphorus concentration effect") + 
+  ylab ("Proportion of simulations with a significant\nfruit phosphorus content effect") + 
   xlab("Number of arenas") + 
   theme_LO_sober
 plot_prop

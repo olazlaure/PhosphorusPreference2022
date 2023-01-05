@@ -34,6 +34,10 @@ str(data_control)
 
 data_phosphorus$obs <- as.factor(1:nrow(data_phosphorus))
 data_control$obs <- as.factor(1:nrow(data_control))
+
+
+##Add concentration in g/kg
+data_phosphorus$Content <- data_phosphorus$Concentration/1.1
 ```
 
 
@@ -107,7 +111,7 @@ data_control <- merge(data_control, data_compo_clean,
 data_color <- merge(data_color, data_compo_clean, 
       by.x = "fruit",  by.y = "Fruit", all.x = TRUE, all.y = FALSE)
 
-
+data_control$Content <- data_control$Concentration
 ```
 
 
@@ -246,12 +250,15 @@ SUM_Phosphore <- Rmisc::summarySE(data_phosphorus,
                        groupvars = c("Concentration"), 
                        na.rm=TRUE)
 
+SUM_Phosphore$Content <- SUM_Phosphore$Concentration/1.1
+
 SUM_Control <- Rmisc::summarySE(data_control, 
                         measurevar = c("Nb_eggs_transformed"),
                        groupvars = c("Concentration",
                                      "Fruit"), 
                        na.rm=TRUE)
 
+SUM_Control$Content <- SUM_Control$Concentration
 
 ```
 
@@ -260,18 +267,18 @@ SUM_Control <- Rmisc::summarySE(data_control,
 # PLOT PHOSPHORUS
 ```{r }
 #PLOT
-PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Concentration, 
+PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Content, 
                                                                 y = Nb_eggs_transformed)) + 
   geom_jitter(width = 0.03, size = 0.9, alpha = 0.1) +
   geom_hline(yintercept = Intercept_phosphorus,
             color = "darkred", size = 1, linetype = "longdash") +
-  geom_point(data = SUM_Phosphore, aes(x = Concentration, y = Nb_eggs_transformed), 
+  geom_point(data = SUM_Phosphore, aes(x = Content, y = Nb_eggs_transformed), 
              size = 5) +
-  geom_errorbar(data = SUM_Phosphore, aes(x = Concentration,
+  geom_errorbar(data = SUM_Phosphore, aes(x = Content,
                                           ymin = Nb_eggs_transformed-ci, 
                                           ymax = Nb_eggs_transformed+ci,), 
              size = 1, width=.05) +
-  xlim(-0.05,1.7) +
+  #xlim(-0.05,1.65) +
   ylab("log(number of eggs+1)") +
   xlab("Phosphorus content (g/kg)") +
   annotate(geom = "text", x = 0.25, y = max(data_phosphorus$Nb_eggs_transformed), 
@@ -287,7 +294,7 @@ PLOT_Phosphorus_average
 
 
 PLOT_Control_average <- ggplot2::ggplot(data_control, 
-                                        aes(x = Concentration, y = Nb_eggs_transformed,
+                                        aes(x = Content, y = Nb_eggs_transformed,
                                             color= Fruit)) + 
   geom_text(data = SUM_Control, aes(label = Fruit,  color= Fruit),
             hjust=0.5, vjust=-10.5) + 
@@ -295,10 +302,10 @@ PLOT_Control_average <- ggplot2::ggplot(data_control,
   geom_abline(slope = Slope_fruit, 
               intercept = Intercept_fruit,
             color = "darkred", size = 1, linetype = "longdash") +
-  geom_point(data = SUM_Control, aes(x = Concentration, 
+  geom_point(data = SUM_Control, aes(x = Content, 
                                      y = Nb_eggs_transformed), 
              size = 5) +
-  geom_errorbar(data = SUM_Control, aes(x = Concentration,
+  geom_errorbar(data = SUM_Control, aes(x = Content,
                                           ymin = Nb_eggs_transformed-ci,
                                     ymax = Nb_eggs_transformed+ci,), 
              size = 1, width=.01) +
@@ -342,8 +349,8 @@ Plot_Phosphorus_Fruits
 #                    base_height = 20/cm(1), base_width = 16/cm(1), dpi = 610)
 # 
 # 
-#  
-#  
+
+
 
 
  
