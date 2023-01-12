@@ -280,7 +280,7 @@ PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Content,
              size = 1, width=.05) +
   #xlim(-0.05,1.65) +
   ylab("log(number of eggs+1)") +
-  xlab("Phosphorus content (g/kg)") +
+  xlab("Phosphorus content (g/kg medium)") +
   annotate(geom = "text", x = 0.25, y = max(data_phosphorus$Nb_eggs_transformed), 
            label = equation_phosphore, color="black", parse = TRUE, size = 3) + 
   #ggplot2::scale_y_continuous(trans = scales::log2_trans()) +
@@ -327,7 +327,7 @@ PLOT_Control_average <- ggplot2::ggplot(data_control,
   theme(legend.position="none") + 
   xlim(-0.005,0.325) +
   ylab("log(number of eggs+1)") +
-  xlab("Phosphorus content (g/kg)") +
+  xlab("Phosphorus content (g/kg medium)") +
   theme_LO_sober
 PLOT_Control_average
 
