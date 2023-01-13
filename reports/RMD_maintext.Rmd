@@ -36,8 +36,12 @@ data_phosphorus$obs <- as.factor(1:nrow(data_phosphorus))
 data_control$obs <- as.factor(1:nrow(data_control))
 
 
-##Add concentration in g/kg
-data_phosphorus$Content <- data_phosphorus$Concentration/1.1
+##Add content in g/kg
+data_phosphorus$Content_KH2P04 <- data_phosphorus$Concentration/1.1
+
+# Add value of content of inorganic phosphate
+data_phosphorus$Content <- data_phosphorus$Content_KH2P04*2.846866722
+
 ```
 
 
@@ -250,7 +254,9 @@ SUM_Phosphore <- Rmisc::summarySE(data_phosphorus,
                        groupvars = c("Concentration"), 
                        na.rm=TRUE)
 
-SUM_Phosphore$Content <- SUM_Phosphore$Concentration/1.1
+SUM_Phosphore$Content_KH2P04 <- SUM_Phosphore$Concentration/1.1
+# Add value of content of inorganic phosphate
+SUM_Phosphore$Content <- SUM_Phosphore$Content_KH2P04*2.846866722
 
 SUM_Control <- Rmisc::summarySE(data_control, 
                         measurevar = c("Nb_eggs_transformed"),
@@ -280,7 +286,7 @@ PLOT_Phosphorus_average <- ggplot2::ggplot(data_phosphorus, aes(x = Content,
              size = 1, width=.05) +
   #xlim(-0.05,1.65) +
   ylab("log(number of eggs+1)") +
-  xlab("Phosphorus content (g/kg medium)") +
+  xlab("Inorganic phosphate content (g/kg medium)") +
   annotate(geom = "text", x = 0.25, y = max(data_phosphorus$Nb_eggs_transformed), 
            label = equation_phosphore, color="black", parse = TRUE, size = 3) + 
   #ggplot2::scale_y_continuous(trans = scales::log2_trans()) +
@@ -343,12 +349,12 @@ Plot_Phosphorus_Fruits <- cowplot::plot_grid(PLOT_Phosphorus_average,
                         scale = c(0.95, 0.95))
 Plot_Phosphorus_Fruits
 
-
+# 
 # cowplot::save_plot(file =here::here("figures", "Figure1.pdf"),
 #                    Plot_Phosphorus_Fruits,
 #                    base_height = 20/cm(1), base_width = 16/cm(1), dpi = 610)
-# 
-# 
+# # 
+# # 
 
 
 
